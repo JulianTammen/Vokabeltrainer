@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Che, vamos a estudiar</title>
+<link rel="icon" href="data:,">
+<style>
+  html, body { margin: 0; padding: 0; background: #F7F2E4; }
+  * { -webkit-tap-highlight-color: transparent; }
+  body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+</style>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useMemo, useCallback } = React;
+
+const RAW_VOCAB = [
+{ar:"el tren",de:"Zug",art:"Substantiv",irr:false,ex:null},
+{ar:"el papel",de:"Papier; Pappe",art:"Substantiv",irr:false,ex:null},
+{ar:"el tiempo",de:"Zeit; Wetter",art:"Substantiv",irr:false,ex:null},
+{ar:"dentro de",de:"innerhalb (räumlich & zeitlich)",art:"Präposition",irr:false,ex:"dentro del coche\ndentro de un año"},
+{ar:"poder",de:"können",art:"Verb",irr:true,ex:null},
+{ar:"el auto",de:"Auto",art:"Substantiv",irr:false,ex:null},
+{ar:"lindo",de:"schön",art:"Adjektiv",irr:false,ex:null},
+{ar:"en",de:"in (räumlich & zeitlich)",art:"Präposition",irr:false,ex:null},
+{ar:"pero",de:"aber",art:"Konjunktion",irr:false,ex:null},
+{ar:"caliente",de:"warm",art:"Adjektiv",irr:false,ex:null},
+{ar:"poco",de:"wenig",art:"Adjektiv",irr:false,ex:null},
+{ar:"demasiado (dinero)",de:"zu viel (Geld)",art:"Adjektiv",irr:false,ex:null},
+{ar:"tomar",de:"trinken",art:"Verb",irr:false,ex:null},
+{ar:"frio",de:"kalt",art:"Adjektiv",irr:false,ex:null},
+{ar:"también",de:"auch",art:"Konjunktion",irr:false,ex:null},
+{ar:"¿y que?",de:"na und?",art:"Redewendung",irr:false,ex:null},
+{ar:"ahora (ya)",de:"jetzt (sofort)",art:"Adverb",irr:false,ex:null},
+{ar:"sobre",de:"auf; über",art:"Präposition",irr:false,ex:null},
+{ar:"grande",de:"groß",art:"Adjektiv",irr:false,ex:null},
+{ar:"el che",de:"hey; Kumpel",art:"Substantiv",irr:false,ex:null},
+{ar:"el pan",de:"Brot; Brötchen",art:"Substantiv",irr:false,ex:null},
+{ar:"el vaso",de:"Glas",art:"Substantiv",irr:false,ex:null},
+{ar:"feliz",de:"glücklich",art:"Adjektiv",irr:false,ex:null},
+{ar:"comer",de:"essen",art:"Verb",irr:false,ex:null},
+{ar:"o",de:"oder",art:"Konjunktion",irr:false,ex:null},
+{ar:"la bolsa",de:"Tüte",art:"Substantiv",irr:false,ex:null},
+{ar:"hablar",de:"sprechen",art:"Verb",irr:false,ex:null},
+{ar:"llegar",de:"ankommen (an einem Ort)",art:"Verb",irr:false,ex:null},
+{ar:"el perro",de:"Hund",art:"Substantiv",irr:false,ex:null},
+{ar:"demasiado (caliente)",de:"zu (heiß)",art:"Adverb",irr:false,ex:null},
+{ar:"pensar",de:"nachdenken",art:"Verb",irr:true,ex:null},
+{ar:"y",de:"und",art:"Konjunktion",irr:false,ex:null},
+{ar:"hacer",de:"tun; machen (Wetter: sein)",art:"Verb",irr:true,ex:null},
+{ar:"decir",de:"sagen",art:"Verb",irr:true,ex:null},
+{ar:"¿todo bien?",de:"alles klar?",art:"Redewendung",irr:false,ex:null},
+{ar:"jugar",de:"spielen",art:"Verb",irr:true,ex:null},
+{ar:"la comida",de:"Essen",art:"Substantiv",irr:false,ex:null},
+{ar:"la calle",de:"Straße",art:"Substantiv",irr:false,ex:null},
+{ar:"el mate",de:"Mate (Getränk, kulturell zentral)",art:"Substantiv",irr:false,ex:null},
+{ar:"dar",de:"geben",art:"Verb",irr:true,ex:null},
+{ar:"terminar",de:"beenden; kommen",art:"Verb",irr:false,ex:null},
+{ar:"gustar",de:"gefallen",art:"Verb",irr:true,ex:null},
+{ar:"posta",de:"wirklich; im Ernst",art:"Adverb",irr:false,ex:null},
+{ar:"¿Qué onda?",de:"Was geht? / Wie läuft's?",art:"Redewendung",irr:false,ex:null},
+{ar:"dormir",de:"schlafen",art:"Verb",irr:true,ex:null},
+{ar:"la plata",de:"Geld (statt el dinero)",art:"Substantiv",irr:false,ex:null},
+{ar:"ayer",de:"gestern",art:"Adverb",irr:false,ex:null},
+{ar:"venir",de:"kommen",art:"Verb",irr:true,ex:null},
+{ar:"ocupado",de:"beschäftigt",art:"Adjektiv",irr:false,ex:null},
+{ar:"bárbaro",de:"super; klasse",art:"Adjektiv",irr:false,ex:null},
+{ar:"mañana",de:"morgen",art:"Adverb",irr:false,ex:null},
+{ar:"viste",de:"weißt du (Füllwort, sehr argentinisch)",art:"Redewendung",irr:false,ex:null},
+{ar:"querer",de:"wollen",art:"Verb",irr:true,ex:null},
+{ar:"ser",de:"sein (dauerhaft)",art:"Verb",irr:true,ex:null},
+{ar:"el boliche",de:"Club; Disco",art:"Substantiv",irr:false,ex:null},
+{ar:"necesitar",de:"brauchen",art:"Verb",irr:false,ex:null},
+{ar:"mirar",de:"anschauen",art:"Verb",irr:false,ex:null},
+{ar:"empezar",de:"anfangen",art:"Verb",irr:true,ex:null},
+{ar:"ver",de:"sehen",art:"Verb",irr:true,ex:null},
+{ar:"tener",de:"haben",art:"Verb",irr:true,ex:null},
+{ar:"re (lindo)",de:"total/super (schön)",art:"Adverb",irr:false,ex:null},
+{ar:"acá",de:"hier",art:"Adverb",irr:false,ex:null},
+{ar:"mucho",de:"viel",art:"Adjektiv",irr:false,ex:null},
+{ar:"el barrio",de:"Viertel; Stadtteil",art:"Substantiv",irr:false,ex:null},
+{ar:"cansado",de:"müde",art:"Adjektiv",irr:false,ex:null},
+{ar:"el pibe",de:"Junge/Mädchen",art:"Substantiv",irr:false,ex:null},
+{ar:"vivir",de:"leben; wohnen",art:"Verb",irr:false,ex:null},
+{ar:"ayudar",de:"helfen",art:"Verb",irr:false,ex:null},
+{ar:"hoy",de:"heute",art:"Adverb",irr:false,ex:null},
+{ar:"entender",de:"verstehen",art:"Verb",irr:true,ex:null},
+{ar:"el boludo",de:"Trottel; auch freundschaftlich \"Alter\"",art:"Substantiv",irr:false,ex:null},
+{ar:"ir",de:"gehen",art:"Verb",irr:true,ex:null},
+{ar:"tranquilo",de:"ruhig; entspannt (auch \"alles gut\")",art:"Adjektiv",irr:false,ex:null},
+{ar:"escuchar",de:"zuhören",art:"Verb",irr:false,ex:null},
+{ar:"estar",de:"sein (temporär/Zustand)",art:"Verb",irr:true,ex:null},
+{ar:"trabajar",de:"arbeiten",art:"Verb",irr:false,ex:null},
+{ar:"la casa",de:"Haus",art:"Substantiv",irr:false,ex:null},
+{ar:"copado",de:"cool; klasse",art:"Adjektiv",irr:false,ex:null},
+{ar:"el amigo",de:"Freund/in",art:"Substantiv",irr:false,ex:null},
+{ar:"el trabajo",de:"Arbeit",art:"Substantiv",irr:false,ex:null},
+{ar:"saber",de:"wissen",art:"Verb",irr:true,ex:null},
+{ar:"dejar",de:"lassen",art:"Verb",irr:false,ex:"déjame pensar"},
+{ar:"boludear",de:"rumalbern; Zeit verschwenden",art:"Verb",irr:false,ex:null},
+{ar:"de una",de:"klar, gerne! (Zusage)",art:"Redewendung",irr:false,ex:null},
+{ar:"el laburo",de:"Arbeit (Slang für 'el trabajo')",art:"Substantiv",irr:false,ex:null},
+{ar:"el finde",de:"Wochenende",art:"Substantiv",irr:false,ex:null},
+{ar:"genial",de:"genial; toll",art:"Adjektiv",irr:false,ex:null},
+{ar:"el celular",de:"Handy",art:"Substantiv",irr:false,ex:null},
+{ar:"laburar",de:"arbeiten (Slang für 'trabajar')",art:"Verb",irr:false,ex:null},
+{ar:"obvio",de:"klar; logisch",art:"Redewendung",irr:false,ex:null},
+{ar:"contar",de:"erzählen",art:"Verb",irr:true,ex:null},
+];
+
+const WORTARTEN = ["Substantiv","Verb","Adjektiv","Präposition","Adverb","Konjunktion","Redewendung"];
+
+const ART_COLORS = {
+  Substantiv: "#C4472A",
+  Verb: "#2E6E8E",
+  Adjektiv: "#3F7D4F",
+  Präposition: "#B8952E",
+  Adverb: "#8B5FA8",
+  Konjunktion: "#5C6B73",
+  Redewendung: "#B8562E",
+};
+
+function shuffleArr(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+const FLIP_MS = 450;
+
+function App() {
+  const [direction, setDirection] = useState("ar2de");
+  const [selectedArten, setSelectedArten] = useState(new Set(WORTARTEN));
+  const [randomized, setRandomized] = useState(true);
+  const [showSettings, setShowSettings] = useState(true);
+  const [queue, setQueue] = useState([]);
+  const [totalCards, setTotalCards] = useState(0);
+  const [masteredIds, setMasteredIds] = useState(new Set());
+  const [wrongAttempts, setWrongAttempts] = useState(0);
+  const [flipped, setFlipped] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [sessionStarted, setSessionStarted] = useState(false);
+
+  const filteredBase = useMemo(
+    () => RAW_VOCAB.map((v, i) => ({ ...v, id: i })).filter((v) => selectedArten.has(v.art)),
+    [selectedArten]
+  );
+
+  const startSession = useCallback(() => {
+    const base = randomized ? shuffleArr(filteredBase) : filteredBase;
+    setQueue(base);
+    setTotalCards(base.length);
+    setMasteredIds(new Set());
+    setWrongAttempts(0);
+    setFlipped(false);
+    setIsAnimating(false);
+    setSessionStarted(true);
+    setShowSettings(false);
+  }, [filteredBase, randomized]);
+
+  const toggleArt = (art) => {
+    setSelectedArten((prev) => {
+      const next = new Set(prev);
+      if (next.has(art)) next.delete(art); else next.add(art);
+      return next;
+    });
+  };
+
+  const current = queue[0];
+  const front = current ? (direction === "ar2de" ? current.ar : current.de) : "";
+  const back = current ? (direction === "ar2de" ? current.de : current.ar) : "";
+
+  const advance = useCallback((mutateQueue) => {
+    if (isAnimating) return;
+    if (flipped) {
+      setIsAnimating(true);
+      setFlipped(false);
+      setTimeout(() => { mutateQueue(); setIsAnimating(false); }, FLIP_MS);
+    } else {
+      mutateQueue();
+    }
+  }, [flipped, isAnimating]);
+
+  const skip = useCallback(() => {
+    if (!current) return;
+    advance(() => setQueue((q) => [...q.slice(1), q[0]]));
+  }, [advance, current]);
+
+  const markKnown = (val) => {
+    if (!current) return;
+    if (val) {
+      advance(() => {
+        setMasteredIds((prev) => new Set(prev).add(current.id));
+        setQueue((q) => q.slice(1));
+      });
+    } else {
+      setWrongAttempts((c) => c + 1);
+      advance(() => setQueue((q) => [...q.slice(1), q[0]]));
+    }
+  };
+
+  useEffect(() => {
+    if (!sessionStarted) return;
+    const handler = (e) => {
+      if (e.code === "Space") { e.preventDefault(); if (!isAnimating) setFlipped((f) => !f); }
+      else if (e.code === "ArrowRight") { skip(); }
+      else if (e.code === "Digit1" || e.key === "1") { markKnown(false); }
+      else if (e.code === "Digit2" || e.key === "2") { markKnown(true); }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [sessionStarted, isAnimating, skip, current]);
+
+  const knownCount = masteredIds.size;
+  const progress = totalCards ? (knownCount / totalCards) * 100 : 0;
+  const roundComplete = sessionStarted && queue.length === 0;
+
+  const restart = () => {
+    const base = randomized ? shuffleArr(filteredBase) : filteredBase;
+    setQueue(base);
+    setTotalCards(base.length);
+    setMasteredIds(new Set());
+    setWrongAttempts(0);
+    setFlipped(false);
+    setIsAnimating(false);
+  };
+
+  return (
+    <div style={styles.page}>
+      <div style={styles.sunGlow} />
+      <div style={styles.container}>
+        <header style={styles.header}>
+          <div style={styles.headerLeft}>
+            <span style={styles.flagStripe} />
+            <h1 style={styles.title}>Che, vamos a estudiar</h1>
+          </div>
+          <button style={styles.iconBtn} onClick={() => setShowSettings((s) => !s)} aria-label="Einstellungen">⚙</button>
+        </header>
+
+        {showSettings && (
+          <div style={styles.panel}>
+            <div style={styles.panelRow}>
+              <span style={styles.panelLabel}>Richtung</span>
+              <button style={styles.directionBtn} onClick={() => setDirection((d) => (d === "ar2de" ? "de2ar" : "ar2de"))}>
+                <span style={direction === "ar2de" ? styles.dirActive : styles.dirInactive}>🇦🇷 Español</span>
+                <span style={{color:"#8B7355"}}>⇄</span>
+                <span style={direction === "de2ar" ? styles.dirActive : styles.dirInactive}>Deutsch</span>
+              </button>
+            </div>
+
+            <div style={styles.panelRow}>
+              <span style={styles.panelLabel}>Wortart</span>
+              <div style={styles.chipRow}>
+                {WORTARTEN.map((art) => {
+                  const active = selectedArten.has(art);
+                  const count = RAW_VOCAB.filter((v) => v.art === art).length;
+                  return (
+                    <button key={art} onClick={() => toggleArt(art)}
+                      style={{...styles.chip, borderColor: active ? ART_COLORS[art] : "#DDD6C7", background: active ? ART_COLORS[art] + "1A" : "transparent", color: active ? ART_COLORS[art] : "#9B9384"}}>
+                      {art} <span style={styles.chipCount}>{count}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div style={styles.panelRow}>
+              <span style={styles.panelLabel}>Reihenfolge</span>
+              <label style={styles.toggleWrap}>
+                <input type="checkbox" checked={randomized} onChange={(e) => setRandomized(e.target.checked)} style={styles.checkbox} />
+                🔀 zufällig mischen
+              </label>
+            </div>
+
+            <div style={styles.panelFooter}>
+              <span style={styles.countLabel}>{filteredBase.length} {filteredBase.length === 1 ? "Vokabel" : "Vokabeln"} ausgewählt</span>
+              <button style={styles.startBtn} onClick={startSession} disabled={filteredBase.length === 0}>
+                {sessionStarted ? "Neu starten" : "Los geht's"}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {!showSettings && sessionStarted && current && (
+          <div style={styles.gameArea}>
+            <div style={styles.progressBarTrack}>
+              <div style={{...styles.progressBarFill, width: `${progress}%`}} />
+            </div>
+            <div style={styles.statsRow}>
+              <span style={styles.statText}>{knownCount} / {totalCards} gekonnt</span>
+              <span style={styles.statText}>
+                <span style={{color:"#8B7355"}}>noch {queue.length} in der Runde</span>
+                {wrongAttempts > 0 && <span style={{color:"#C4472A"}}>{"  "}✕ {wrongAttempts}</span>}
+              </span>
+              <button style={styles.iconBtnSmall} onClick={restart} aria-label="Neu starten">↺</button>
+            </div>
+
+            <div style={styles.cardWrap} onClick={() => !isAnimating && setFlipped((f) => !f)}>
+              <div style={{...styles.card, transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)"}}>
+                <div style={{...styles.cardFace, ...styles.cardFront}}>
+                  <span style={{...styles.artBadge, background: ART_COLORS[current.art] + "1A", color: ART_COLORS[current.art]}}>
+                    {current.art}{current.irr ? " · unregelmäßig" : ""}
+                  </span>
+                  <p style={styles.cardWord}>{front}</p>
+                  <span style={styles.tapHint}>tippen zum umdrehen</span>
+                </div>
+                <div style={{...styles.cardFace, ...styles.cardBack}}>
+                  <span style={{...styles.artBadge, background: "rgba(255,255,255,0.18)", color: "#FBF6EA"}}>{current.art}</span>
+                  <p style={{...styles.cardWord, color: "#FBF6EA"}}>{back}</p>
+                  {current.ex && (
+                    <p style={styles.example}>
+                      {current.ex.split("\n").map((line, i) => <span key={i} style={{display:"block"}}>{line}</span>)}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div style={styles.navRow}>
+              <button style={{...styles.judgeBtn, ...styles.judgeNo}} onClick={() => markKnown(false)} disabled={isAnimating}>✕ weiß ich nicht</button>
+              <button style={{...styles.judgeBtn, ...styles.judgeYes}} onClick={() => markKnown(true)} disabled={isAnimating}>✓ weiß ich</button>
+              <button style={styles.navBtn} onClick={skip} disabled={isAnimating} aria-label="Überspringen">›</button>
+            </div>
+          </div>
+        )}
+
+        {!showSettings && roundComplete && (
+          <div style={styles.gameArea}>
+            <div style={styles.doneBanner}>
+              🎉 Alle {totalCards} Vokabeln gekonnt!
+              {wrongAttempts > 0 && ` (${wrongAttempts} Versuche gebraucht)`}
+              <br />
+              <button style={styles.inlineLink} onClick={restart}>nochmal von vorn</button>
+              {" oder "}
+              <button style={styles.inlineLink} onClick={() => setShowSettings(true)}>Einstellungen ändern</button>
+            </div>
+          </div>
+        )}
+
+        {!sessionStarted && !showSettings && <p style={styles.emptyHint}>Öffne die Einstellungen, um zu starten.</p>}
+      </div>
+    </div>
+  );
+}
+
+const styles = {
+  page: { minHeight: "100vh", background: "#F7F2E4", fontFamily: "'Georgia','Iowan Old Style',serif", position: "relative", overflow: "hidden", display: "flex", justifyContent: "center", padding: "24px 16px 40px", boxSizing: "border-box" },
+  sunGlow: { position: "absolute", top: -120, left: "50%", transform: "translateX(-50%)", width: 480, height: 480, borderRadius: "50%", background: "radial-gradient(circle, rgba(212,160,23,0.25) 0%, rgba(212,160,23,0) 70%)", pointerEvents: "none" },
+  container: { width: "100%", maxWidth: 440, position: "relative", zIndex: 1 },
+  header: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 },
+  headerLeft: { display: "flex", alignItems: "center", gap: 10 },
+  flagStripe: { width: 6, height: 28, borderRadius: 3, background: "linear-gradient(180deg, #75AADB 0%, #75AADB 33%, #FFFFFF 33%, #FFFFFF 66%, #75AADB 66%)", boxShadow: "0 0 0 1px rgba(0,0,0,0.05)" },
+  title: { fontSize: 21, margin: 0, color: "#2B2118", fontWeight: 700, letterSpacing: "-0.01em" },
+  iconBtn: { width: 36, height: 36, borderRadius: "50%", border: "1px solid #DDD6C7", background: "#FFFDF8", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#5A4E3D", fontSize: 16 },
+  iconBtnSmall: { width: 28, height: 28, borderRadius: "50%", border: "1px solid #DDD6C7", background: "#FFFDF8", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#5A4E3D" },
+  panel: { background: "#FFFDF8", border: "1px solid #EAE2CE", borderRadius: 16, padding: "18px 18px 16px", boxShadow: "0 1px 3px rgba(43,33,24,0.05)", fontFamily: "'Helvetica Neue',Arial,sans-serif" },
+  panelRow: { marginBottom: 16 },
+  panelLabel: { display: "block", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em", color: "#9B9384", marginBottom: 8, fontWeight: 600 },
+  directionBtn: { display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 10, border: "1px solid #EAE2CE", background: "#FBF6EA", cursor: "pointer", width: "100%", justifyContent: "center", fontFamily: "inherit", fontSize: 14 },
+  dirActive: { color: "#2B2118", fontWeight: 700 },
+  dirInactive: { color: "#B6AD9A", fontWeight: 500 },
+  chipRow: { display: "flex", flexWrap: "wrap", gap: 8 },
+  chip: { border: "1.5px solid", borderRadius: 20, padding: "6px 12px", fontSize: 12.5, cursor: "pointer", fontFamily: "inherit", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 },
+  chipCount: { opacity: 0.6, fontWeight: 400 },
+  toggleWrap: { display: "flex", alignItems: "center", fontSize: 14, color: "#3E3627", cursor: "pointer" },
+  checkbox: { marginRight: 8, width: 15, height: 15, accentColor: "#75AADB" },
+  panelFooter: { display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 4, paddingTop: 14, borderTop: "1px solid #F0EAD9" },
+  countLabel: { fontSize: 12.5, color: "#9B9384" },
+  startBtn: { background: "#C4472A", color: "#FBF6EA", border: "none", borderRadius: 10, padding: "10px 20px", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" },
+  gameArea: { display: "flex", flexDirection: "column", gap: 14 },
+  progressBarTrack: { height: 4, borderRadius: 2, background: "#EAE2CE", overflow: "hidden" },
+  progressBarFill: { height: "100%", background: "linear-gradient(90deg, #75AADB, #D4A017)", transition: "width 0.25s ease" },
+  statsRow: { display: "flex", alignItems: "center", justifyContent: "space-between", fontFamily: "'Helvetica Neue',Arial,sans-serif" },
+  statText: { fontSize: 12.5, color: "#8B7355", fontWeight: 600 },
+  cardWrap: { perspective: 1200, height: 260, cursor: "pointer" },
+  card: { position: "relative", width: "100%", height: "100%", transformStyle: "preserve-3d", transition: "transform 0.45s cubic-bezier(0.4,0.2,0.2,1)" },
+  cardFace: { position: "absolute", inset: 0, borderRadius: 20, backfaceVisibility: "hidden", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24, boxSizing: "border-box", textAlign: "center" },
+  cardFront: { background: "#FFFDF8", border: "1px solid #EAE2CE", boxShadow: "0 2px 10px rgba(43,33,24,0.06)" },
+  cardBack: { background: "linear-gradient(155deg, #2E6E8E 0%, #24506A 100%)", transform: "rotateY(180deg)", boxShadow: "0 2px 14px rgba(30,60,80,0.25)" },
+  artBadge: { fontFamily: "'Helvetica Neue',Arial,sans-serif", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", padding: "4px 10px", borderRadius: 20, marginBottom: 18 },
+  cardWord: { fontSize: 30, fontWeight: 700, color: "#2B2118", margin: 0, lineHeight: 1.25 },
+  example: { marginTop: 14, fontSize: 13, color: "#CFE1EA", fontStyle: "italic", fontFamily: "'Helvetica Neue',Arial,sans-serif" },
+  tapHint: { position: "absolute", bottom: 16, fontSize: 11, color: "#C9C1AE", fontFamily: "'Helvetica Neue',Arial,sans-serif", textTransform: "uppercase", letterSpacing: "0.06em" },
+  navRow: { display: "flex", alignItems: "center", gap: 8, fontFamily: "'Helvetica Neue',Arial,sans-serif" },
+  navBtn: { width: 40, height: 40, flexShrink: 0, borderRadius: "50%", border: "1px solid #EAE2CE", background: "#FFFDF8", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#5A4E3D", fontSize: 18 },
+  judgeBtn: { flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "11px 8px", borderRadius: 12, border: "none", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" },
+  judgeNo: { background: "#F6E4DC", color: "#C4472A" },
+  judgeYes: { background: "#E1EEE3", color: "#3F7D4F" },
+  doneBanner: { marginTop: 4, background: "#FBF6EA", border: "1px solid #EAE2CE", borderRadius: 12, padding: "12px 14px", fontSize: 13, color: "#5A4E3D", textAlign: "center", fontFamily: "'Helvetica Neue',Arial,sans-serif" },
+  inlineLink: { background: "none", border: "none", color: "#2E6E8E", fontWeight: 700, cursor: "pointer", textDecoration: "underline", fontFamily: "inherit", fontSize: 13, padding: 0 },
+  emptyHint: { textAlign: "center", color: "#9B9384", fontFamily: "'Helvetica Neue',Arial,sans-serif" },
+};
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);
+</script>
+</body>
+</html>
