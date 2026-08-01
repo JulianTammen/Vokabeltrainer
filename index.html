@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0B1119" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Vokabeln" />
+<title>Che, vamos a estudiar</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B1119'/%3E%3Ctext x='50' y='72' font-size='58' text-anchor='middle' fill='%23D9A441' font-family='Georgia,serif'%3E%C3%91%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,600;0,6..96,700;1,6..96,400&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+:root{
+  --ink:#0B1119;
+  --ink-2:#131D2A;
+  --ink-3:#1D2937;
+  --line:#26333F;
+  --porcelain:#EDE8DF;
+  --muted:#8494A6;
+  --muted-dim:#5D6B7C;
+  --gold:#D9A441;
+  --gold-dim:#8A6B2E;
+  --azure:#5AAEE0;
+  --rose:#D9614F;
+  --jade:#63AF83;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;background:var(--ink);}
+body{
+  font-family:'Archivo',system-ui,sans-serif;
+  color:var(--porcelain);
+  min-height:100dvh;
+  -webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-offset:3px;}
+@media (prefers-reduced-motion:reduce){
+  *{transition-duration:.01ms !important;animation-duration:.01ms !important;}
+}
+
+.page{
+  min-height:100dvh;
+  display:flex;justify-content:center;
+  padding:calc(env(safe-area-inset-top) + 22px) 18px calc(env(safe-area-inset-bottom) + 28px);
+  position:relative;overflow:hidden;
+}
+.aurora{
+  position:fixed;top:-30vh;left:50%;transform:translateX(-50%);
+  width:130vw;height:70vh;pointer-events:none;
+  background:radial-gradient(ellipse at center, rgba(90,174,224,.16) 0%, rgba(90,174,224,0) 62%);
+}
+.grain{
+  position:fixed;inset:0;pointer-events:none;opacity:.035;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.wrap{width:100%;max-width:430px;position:relative;z-index:1;}
+
+.head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:26px;}
+.eyebrow{
+  font-size:10px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--gold);font-weight:600;margin:0 0 7px;
+  display:flex;align-items:center;gap:9px;
+}
+.eyebrow::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,var(--gold-dim),transparent);}
+.title{
+  font-family:'Bodoni Moda',serif;font-weight:700;
+  font-size:29px;line-height:1.05;letter-spacing:-.01em;margin:0;
+}
+.title em{font-style:italic;font-weight:400;color:var(--gold);}
+.gear{
+  width:42px;height:42px;flex:0 0 42px;border-radius:50%;
+  border:1px solid var(--line);background:var(--ink-2);
+  display:grid;place-items:center;color:var(--muted);
+  transition:color .2s,border-color .2s,transform .15s;
+}
+.gear:hover{color:var(--gold);border-color:var(--gold-dim);}
+.gear:active{transform:scale(.94);}
+
+.panel{
+  background:var(--ink-2);border:1px solid var(--line);
+  border-radius:18px;padding:22px 20px 18px;
+  box-shadow:0 18px 40px -22px rgba(0,0,0,.9);
+  animation:rise .35s cubic-bezier(.2,.7,.3,1);
+}
+@keyframes rise{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+.field{margin-bottom:22px;}
+.flabel{
+  display:block;font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--muted-dim);font-weight:600;margin-bottom:11px;
+}
+.dirtoggle{
+  width:100%;display:flex;align-items:center;justify-content:center;gap:14px;
+  padding:13px 16px;border-radius:12px;
+  border:1px solid var(--line);background:var(--ink-3);
+  font-size:15px;transition:border-color .2s;
+}
+.dirtoggle:hover{border-color:var(--gold-dim);}
+.dirtoggle .on{color:var(--porcelain);font-weight:600;}
+.dirtoggle .off{color:var(--muted-dim);font-weight:400;}
+.dirtoggle .swap{color:var(--gold);font-size:17px;line-height:1;}
+.chips{display:flex;flex-wrap:wrap;gap:7px;}
+.chip{
+  border:1px solid var(--line);border-radius:999px;
+  padding:7px 13px;font-size:13px;font-weight:500;
+  color:var(--muted-dim);background:transparent;
+  display:inline-flex;align-items:center;gap:6px;
+  transition:all .18s;
+}
+.chip .n{font-size:11px;opacity:.65;font-variant-numeric:tabular-nums;}
+.chip[data-on="1"]{font-weight:600;}
+.switch{display:flex;align-items:center;gap:11px;font-size:15px;color:var(--porcelain);cursor:pointer;}
+.switch input{position:absolute;opacity:0;pointer-events:none;}
+.track{
+  width:42px;height:24px;border-radius:999px;flex:0 0 42px;
+  background:var(--ink-3);border:1px solid var(--line);
+  position:relative;transition:background .22s,border-color .22s;
+}
+.knob{
+  position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;
+  background:var(--muted-dim);transition:transform .22s cubic-bezier(.3,1.4,.5,1),background .22s;
+}
+.switch input:checked + .track{background:rgba(217,164,65,.2);border-color:var(--gold-dim);}
+.switch input:checked + .track .knob{transform:translateX(18px);background:var(--gold);}
+.foot{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding-top:17px;border-top:1px solid var(--line);
+}
+.count{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;}
+.start{
+  background:var(--gold);color:#14100A;
+  border-radius:11px;padding:12px 22px;
+  font-size:14px;font-weight:700;
+  transition:filter .18s,transform .12s;
+}
+.start:hover{filter:brightness(1.08);}
+.start:active{transform:scale(.97);}
+.start:disabled{opacity:.35;pointer-events:none;}
+
+.study{display:flex;flex-direction:column;gap:16px;animation:rise .35s cubic-bezier(.2,.7,.3,1);}
+.ticks{display:flex;gap:2px;height:14px;align-items:flex-end;}
+.tick{flex:1;min-width:1px;border-radius:1px;background:var(--ink-3);height:4px;transition:height .3s,background .3s;}
+.tick[data-s="done"]{background:var(--gold);}
+.tick[data-s="now"]{background:var(--azure);height:12px;}
+.meta{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.meta .l,.meta .r{font-size:12px;color:var(--muted-dim);font-variant-numeric:tabular-nums;}
+.meta .l b{color:var(--porcelain);font-weight:600;}
+.meta .r .miss{color:var(--rose);}
+.reset{
+  width:30px;height:30px;border-radius:50%;flex:0 0 30px;
+  border:1px solid var(--line);color:var(--muted-dim);
+  display:grid;place-items:center;transition:color .2s,border-color .2s;
+}
+.reset:hover{color:var(--gold);border-color:var(--gold-dim);}
+
+.stage{perspective:1400px;height:min(46dvh,300px);min-height:230px;cursor:pointer;}
+.card{
+  position:relative;width:100%;height:100%;
+  transform-style:preserve-3d;
+  transition:transform .5s cubic-bezier(.35,.05,.2,1);
+}
+.card.flip{transform:rotateY(180deg);}
+.face{
+  position:absolute;inset:0;border-radius:20px;
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:30px 26px;text-align:center;
+}
+.face.front{
+  background:linear-gradient(168deg,var(--ink-2) 0%,#0F1721 100%);
+  border:1px solid var(--line);
+  box-shadow:0 22px 46px -26px rgba(0,0,0,.95);
+}
+.face.back{
+  transform:rotateY(180deg);
+  background:linear-gradient(168deg,#16324A 0%,#0E2133 100%);
+  border:1px solid rgba(217,164,65,.42);
+  box-shadow:0 22px 46px -24px rgba(0,0,0,.95);
+}
+.face::before{
+  content:"";position:absolute;inset:9px;border-radius:13px;
+  border:1px solid rgba(217,164,65,.16);pointer-events:none;
+}
+.face.back::before{border-color:rgba(217,164,65,.3);}
+.badge{
+  font-size:9.5px;font-weight:700;letter-spacing:.17em;text-transform:uppercase;
+  padding:5px 11px;border-radius:999px;margin-bottom:20px;
+  border:1px solid currentColor;
+}
+.word{
+  font-family:'Bodoni Moda',serif;font-weight:600;
+  font-size:clamp(28px,8.4vw,38px);line-height:1.16;margin:0;
+}
+.face.back .word{color:#F6F1E6;}
+.ex{
+  margin:16px 0 0;font-size:13.5px;line-height:1.55;
+  color:rgba(217,164,65,.85);font-style:italic;
+  font-family:'Bodoni Moda',serif;
+}
+.hint{
+  position:absolute;bottom:17px;left:0;right:0;
+  font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted-dim);
+}
+.face.back .hint{color:rgba(237,232,223,.3);}
+
+.actions{display:flex;gap:9px;}
+.judge{
+  flex:1;display:flex;align-items:center;justify-content:center;gap:7px;
+  padding:14px 8px;border-radius:13px;font-size:14px;font-weight:600;
+  border:1px solid;transition:background .18s,transform .12s;
+}
+.judge:active{transform:scale(.975);}
+.judge:disabled{opacity:.4;pointer-events:none;}
+.no{color:var(--rose);border-color:rgba(217,97,79,.35);background:rgba(217,97,79,.09);}
+.no:hover{background:rgba(217,97,79,.17);}
+.yes{color:var(--jade);border-color:rgba(99,175,131,.35);background:rgba(99,175,131,.09);}
+.yes:hover{background:rgba(99,175,131,.17);}
+.later{
+  flex:0 0 46px;width:46px;border-radius:13px;
+  border:1px solid var(--line);color:var(--muted-dim);
+  display:grid;place-items:center;font-size:19px;
+  transition:color .2s,border-color .2s;
+}
+.later:hover{color:var(--porcelain);border-color:var(--muted-dim);}
+.later:disabled{opacity:.4;pointer-events:none;}
+.keys{
+  text-align:center;font-size:10px;letter-spacing:.09em;
+  color:var(--muted-dim);text-transform:uppercase;
+}
+.keys kbd{
+  font-family:inherit;border:1px solid var(--line);border-radius:4px;
+  padding:1px 5px;margin:0 2px;color:var(--muted);
+}
+@media (hover:none){.keys{display:none;}}
+
+.done{
+  background:var(--ink-2);border:1px solid rgba(217,164,65,.3);
+  border-radius:18px;padding:30px 24px 24px;text-align:center;
+  animation:rise .4s cubic-bezier(.2,.7,.3,1);
+}
+.done .mark{font-family:'Bodoni Moda',serif;font-style:italic;font-size:38px;color:var(--gold);line-height:1;}
+.done h2{font-family:'Bodoni Moda',serif;font-weight:600;font-size:22px;margin:14px 0 8px;}
+.done p{font-size:14px;color:var(--muted);margin:0;line-height:1.6;}
+.tough{margin-top:22px;padding-top:18px;border-top:1px solid var(--line);text-align:left;}
+.tough h3{
+  font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--muted-dim);font-weight:600;margin:0 0 12px;
+}
+.tough ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px;}
+.tough li{display:flex;align-items:baseline;gap:10px;font-size:14px;}
+.tough .es{font-family:'Bodoni Moda',serif;font-weight:600;flex:0 0 auto;}
+.tough .de{color:var(--muted);font-size:12.5px;flex:1;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.tough .n{color:var(--rose);font-size:11px;font-variant-numeric:tabular-nums;flex:0 0 auto;}
+.again{display:flex;gap:9px;margin-top:22px;}
+.again button{
+  flex:1;padding:12px;border-radius:11px;font-size:13.5px;font-weight:600;
+  border:1px solid var(--line);color:var(--porcelain);transition:border-color .2s,background .2s;
+}
+.again button:hover{border-color:var(--gold-dim);background:rgba(217,164,65,.07);}
+.again .primary{background:var(--gold);color:#14100A;border-color:var(--gold);}
+.again .primary:hover{filter:brightness(1.08);background:var(--gold);}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useMemo, useCallback, useRef } = React;
+
+const RAW_VOCAB = [
+{ar:"el tren",de:"Zug",art:"Substantiv",irr:false,ex:null},
+{ar:"el papel",de:"Papier; Pappe",art:"Substantiv",irr:false,ex:null},
+{ar:"el tiempo",de:"Zeit; Wetter",art:"Substantiv",irr:false,ex:null},
+{ar:"dentro de",de:"innerhalb (räumlich & zeitlich)",art:"Präposition",irr:false,ex:"dentro del coche\ndentro de un año"},
+{ar:"poder",de:"können",art:"Verb",irr:true,ex:null},
+{ar:"el auto",de:"Auto",art:"Substantiv",irr:false,ex:null},
+{ar:"lindo",de:"schön",art:"Adjektiv",irr:false,ex:null},
+{ar:"en",de:"in (räumlich & zeitlich)",art:"Präposition",irr:false,ex:null},
+{ar:"pero",de:"aber",art:"Konjunktion",irr:false,ex:null},
+{ar:"caliente",de:"warm",art:"Adjektiv",irr:false,ex:null},
+{ar:"poco",de:"wenig",art:"Adjektiv",irr:false,ex:null},
+{ar:"demasiado (dinero)",de:"zu viel (Geld)",art:"Adjektiv",irr:false,ex:null},
+{ar:"tomar",de:"trinken",art:"Verb",irr:false,ex:null},
+{ar:"frio",de:"kalt",art:"Adjektiv",irr:false,ex:null},
+{ar:"también",de:"auch",art:"Konjunktion",irr:false,ex:null},
+{ar:"¿y que?",de:"na und?",art:"Redewendung",irr:false,ex:null},
+{ar:"ahora (ya)",de:"jetzt (sofort)",art:"Adverb",irr:false,ex:null},
+{ar:"sobre",de:"auf; über",art:"Präposition",irr:false,ex:null},
+{ar:"grande",de:"groß",art:"Adjektiv",irr:false,ex:null},
+{ar:"el che",de:"hey; Kumpel",art:"Substantiv",irr:false,ex:null},
+{ar:"el pan",de:"Brot; Brötchen",art:"Substantiv",irr:false,ex:null},
+{ar:"el vaso",de:"Glas",art:"Substantiv",irr:false,ex:null},
+{ar:"feliz",de:"glücklich",art:"Adjektiv",irr:false,ex:null},
+{ar:"comer",de:"essen",art:"Verb",irr:false,ex:null},
+{ar:"o",de:"oder",art:"Konjunktion",irr:false,ex:null},
+{ar:"la bolsa",de:"Tüte",art:"Substantiv",irr:false,ex:null},
+{ar:"hablar",de:"sprechen",art:"Verb",irr:false,ex:null},
+{ar:"llegar",de:"ankommen (an einem Ort)",art:"Verb",irr:false,ex:null},
+{ar:"el perro",de:"Hund",art:"Substantiv",irr:false,ex:null},
+{ar:"demasiado (caliente)",de:"zu (heiß)",art:"Adverb",irr:false,ex:null},
+{ar:"pensar",de:"nachdenken",art:"Verb",irr:true,ex:null},
+{ar:"y",de:"und",art:"Konjunktion",irr:false,ex:null},
+{ar:"hacer",de:"tun; machen (Wetter: sein)",art:"Verb",irr:true,ex:null},
+{ar:"decir",de:"sagen",art:"Verb",irr:true,ex:null},
+{ar:"¿todo bien?",de:"alles klar?",art:"Redewendung",irr:false,ex:null},
+{ar:"jugar",de:"spielen",art:"Verb",irr:true,ex:null},
+{ar:"la comida",de:"Essen",art:"Substantiv",irr:false,ex:null},
+{ar:"la calle",de:"Straße",art:"Substantiv",irr:false,ex:null},
+{ar:"el mate",de:"Mate (Getränk, kulturell zentral)",art:"Substantiv",irr:false,ex:null},
+{ar:"dar",de:"geben",art:"Verb",irr:true,ex:null},
+{ar:"terminar",de:"beenden; kommen",art:"Verb",irr:false,ex:null},
+{ar:"gustar",de:"gefallen",art:"Verb",irr:true,ex:null},
+{ar:"posta",de:"wirklich; im Ernst",art:"Adverb",irr:false,ex:null},
+{ar:"¿Qué onda?",de:"Was geht? / Wie läuft's?",art:"Redewendung",irr:false,ex:null},
+{ar:"dormir",de:"schlafen",art:"Verb",irr:true,ex:null},
+{ar:"la plata",de:"Geld (statt el dinero)",art:"Substantiv",irr:false,ex:null},
+{ar:"ayer",de:"gestern",art:"Adverb",irr:false,ex:null},
+{ar:"venir",de:"kommen",art:"Verb",irr:true,ex:null},
+{ar:"ocupado",de:"beschäftigt",art:"Adjektiv",irr:false,ex:null},
+{ar:"bárbaro",de:"super; klasse",art:"Adjektiv",irr:false,ex:null},
+{ar:"mañana",de:"morgen",art:"Adverb",irr:false,ex:null},
+{ar:"viste",de:"weißt du (Füllwort, sehr argentinisch)",art:"Redewendung",irr:false,ex:null},
+{ar:"querer",de:"wollen",art:"Verb",irr:true,ex:null},
+{ar:"ser",de:"sein (dauerhaft)",art:"Verb",irr:true,ex:null},
+{ar:"el boliche",de:"Club; Disco",art:"Substantiv",irr:false,ex:null},
+{ar:"necesitar",de:"brauchen",art:"Verb",irr:false,ex:null},
+{ar:"mirar",de:"anschauen",art:"Verb",irr:false,ex:null},
+{ar:"empezar",de:"anfangen",art:"Verb",irr:true,ex:null},
+{ar:"ver",de:"sehen",art:"Verb",irr:true,ex:null},
+{ar:"tener",de:"haben",art:"Verb",irr:true,ex:null},
+{ar:"re (lindo)",de:"total/super (schön)",art:"Adverb",irr:false,ex:null},
+{ar:"acá",de:"hier",art:"Adverb",irr:false,ex:null},
+{ar:"mucho",de:"viel",art:"Adjektiv",irr:false,ex:null},
+{ar:"el barrio",de:"Viertel; Stadtteil",art:"Substantiv",irr:false,ex:null},
+{ar:"cansado",de:"müde",art:"Adjektiv",irr:false,ex:null},
+{ar:"el pibe",de:"Junge/Mädchen",art:"Substantiv",irr:false,ex:null},
+{ar:"vivir",de:"leben; wohnen",art:"Verb",irr:false,ex:null},
+{ar:"ayudar",de:"helfen",art:"Verb",irr:false,ex:null},
+{ar:"hoy",de:"heute",art:"Adverb",irr:false,ex:null},
+{ar:"entender",de:"verstehen",art:"Verb",irr:true,ex:null},
+{ar:"el boludo",de:"Trottel; auch freundschaftlich \"Alter\"",art:"Substantiv",irr:false,ex:null},
+{ar:"ir",de:"gehen",art:"Verb",irr:true,ex:null},
+{ar:"tranquilo",de:"ruhig; entspannt (auch \"alles gut\")",art:"Adjektiv",irr:false,ex:null},
+{ar:"escuchar",de:"zuhören",art:"Verb",irr:false,ex:null},
+{ar:"estar",de:"sein (temporär/Zustand)",art:"Verb",irr:true,ex:null},
+{ar:"trabajar",de:"arbeiten",art:"Verb",irr:false,ex:null},
+{ar:"la casa",de:"Haus",art:"Substantiv",irr:false,ex:null},
+{ar:"copado",de:"cool; klasse",art:"Adjektiv",irr:false,ex:null},
+{ar:"el amigo",de:"Freund/in",art:"Substantiv",irr:false,ex:null},
+{ar:"el trabajo",de:"Arbeit",art:"Substantiv",irr:false,ex:null},
+{ar:"saber",de:"wissen",art:"Verb",irr:true,ex:null},
+{ar:"dejar",de:"lassen",art:"Verb",irr:false,ex:"déjame pensar"},
+{ar:"boludear",de:"rumalbern; Zeit verschwenden",art:"Verb",irr:false,ex:null},
+{ar:"de una",de:"klar, gerne! (Zusage)",art:"Redewendung",irr:false,ex:null},
+{ar:"el laburo",de:"Arbeit (Slang für 'el trabajo')",art:"Substantiv",irr:false,ex:null},
+{ar:"el finde",de:"Wochenende",art:"Substantiv",irr:false,ex:null},
+{ar:"genial",de:"genial; toll",art:"Adjektiv",irr:false,ex:null},
+{ar:"el celular",de:"Handy",art:"Substantiv",irr:false,ex:null},
+{ar:"laburar",de:"arbeiten (Slang für 'trabajar')",art:"Verb",irr:false,ex:null},
+{ar:"obvio",de:"klar; logisch",art:"Redewendung",irr:false,ex:null},
+{ar:"contar",de:"erzählen",art:"Verb",irr:true,ex:null},
+];
+
+const WORTARTEN = ["Substantiv","Verb","Adjektiv","Präposition","Adverb","Konjunktion","Redewendung"];
+
+const ART_COLORS = {
+  Substantiv:"#E0A458",
+  Verb:"#5AAEE0",
+  Adjektiv:"#63AF83",
+  Präposition:"#C08FD0",
+  Adverb:"#E0836B",
+  Konjunktion:"#8494A6",
+  Redewendung:"#D6C05C",
+};
+
+const FLIP_MS = 500;
+
+function shuffleArr(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function Shell({children,onGear,gearOn}){
+  return (
+    <div className="page">
+      <div className="aurora"/><div className="grain"/>
+      <div className="wrap">
+        <header className="head">
+          <div style={{flex:1,minWidth:0}}>
+            <p className="eyebrow">Vokabeln · Rioplatense</p>
+            <h1 className="title">Che, <em>vamos a estudiar</em></h1>
+          </div>
+          {gearOn && (
+            <button className="gear" onClick={onGear} aria-label="Einstellungen">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+              </svg>
+            </button>
+          )}
+        </header>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function App(){
+  const [direction,setDirection]=useState("ar2de");
+  const [selectedArten,setSelectedArten]=useState(new Set(WORTARTEN));
+  const [randomized,setRandomized]=useState(true);
+  const [view,setView]=useState("settings");
+  const [queue,setQueue]=useState([]);
+  const [order,setOrder]=useState([]);
+  const [total,setTotal]=useState(0);
+  const [mastered,setMastered]=useState(new Set());
+  const [misses,setMisses]=useState({});
+  const [flipped,setFlipped]=useState(false);
+  const [busy,setBusy]=useState(false);
+  const timer=useRef(null);
+
+  useEffect(()=>()=>clearTimeout(timer.current),[]);
+
+  const pool=useMemo(
+    ()=>RAW_VOCAB.map((v,i)=>({...v,id:i})).filter(v=>selectedArten.has(v.art)),
+    [selectedArten]
+  );
+
+  const begin=useCallback(()=>{
+    const base=randomized?shuffleArr(pool):pool;
+    setQueue(base); setOrder(base.map(c=>c.id));
+    setTotal(base.length);
+    setMastered(new Set()); setMisses({});
+    setFlipped(false); setBusy(false); setView("study");
+  },[pool,randomized]);
+
+  const toggleArt=(art)=>setSelectedArten(prev=>{
+    const n=new Set(prev);
+    if(n.has(art)) n.delete(art); else n.add(art);
+    return n;
+  });
+
+  const current=queue[0];
+  const front=current?(direction==="ar2de"?current.ar:current.de):"";
+  const back=current?(direction==="ar2de"?current.de:current.ar):"";
+
+  const advance=useCallback((mutate)=>{
+    if(busy)return;
+    if(flipped){
+      setBusy(true); setFlipped(false);
+      timer.current=setTimeout(()=>{mutate();setBusy(false);},FLIP_MS);
+    } else mutate();
+  },[busy,flipped]);
+
+  const rotate=useCallback(()=>{
+    if(!current)return;
+    advance(()=>setQueue(q=>[...q.slice(1),q[0]]));
+  },[advance,current]);
+
+  const judge=useCallback((knew)=>{
+    if(!current)return;
+    const card=current;
+    if(knew){
+      advance(()=>{
+        setMastered(p=>{
+          const n=new Set(p); n.add(card.id);
+          if(n.size>=total) setView("done");
+          return n;
+        });
+        setQueue(q=>q.slice(1));
+      });
+    } else {
+      setMisses(m=>({...m,[card.id]:(m[card.id]||0)+1}));
+      advance(()=>setQueue(q=>[...q.slice(1),q[0]]));
+    }
+  },[advance,current,total]);
+
+  useEffect(()=>{
+    if(view!=="study")return;
+    const h=(e)=>{
+      if(e.code==="Space"){e.preventDefault();if(!busy)setFlipped(f=>!f);}
+      else if(e.code==="ArrowRight"){e.preventDefault();rotate();}
+      else if(e.key==="1"){judge(false);}
+      else if(e.key==="2"){judge(true);}
+    };
+    window.addEventListener("keydown",h);
+    return()=>window.removeEventListener("keydown",h);
+  },[view,busy,rotate,judge]);
+
+  const known=mastered.size;
+  const missTotal=Object.values(misses).reduce((a,b)=>a+b,0);
+  const toughest=useMemo(()=>
+    Object.entries(misses).sort((a,b)=>b[1]-a[1]).slice(0,5)
+      .map(([id,n])=>({card:RAW_VOCAB[+id],n}))
+  ,[misses]);
+
+  if(view==="settings"){
+    return (
+      <Shell onGear={()=>setView("study")} gearOn={total>0&&queue.length>0}>
+        <div className="panel">
+          <div className="field">
+            <span className="flabel">Abfragerichtung</span>
+            <button className="dirtoggle" onClick={()=>setDirection(d=>d==="ar2de"?"de2ar":"ar2de")}>
+              <span className={direction==="ar2de"?"on":"off"}>🇦🇷 Español</span>
+              <span className="swap">⇄</span>
+              <span className={direction==="de2ar"?"on":"off"}>Deutsch</span>
+            </button>
+          </div>
+
+          <div className="field">
+            <span className="flabel">Wortarten</span>
+            <div className="chips">
+              {WORTARTEN.map(art=>{
+                const on=selectedArten.has(art);
+                const c=ART_COLORS[art];
+                const n=RAW_VOCAB.filter(v=>v.art===art).length;
+                return (
+                  <button key={art} className="chip" data-on={on?"1":"0"}
+                    onClick={()=>toggleArt(art)}
+                    style={on?{borderColor:c,color:c,background:c+"14"}:undefined}>
+                    {art}<span className="n">{n}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="field">
+            <span className="flabel">Reihenfolge</span>
+            <label className="switch">
+              <input type="checkbox" checked={randomized} onChange={e=>setRandomized(e.target.checked)} />
+              <span className="track"><span className="knob"/></span>
+              Zufällig mischen
+            </label>
+          </div>
+
+          <div className="foot">
+            <span className="count">{pool.length} {pool.length===1?"Vokabel":"Vokabeln"}</span>
+            <button className="start" onClick={begin} disabled={!pool.length}>
+              {total?"Neu starten":"Los geht's"}
+            </button>
+          </div>
+        </div>
+      </Shell>
+    );
+  }
+
+  if(view==="done"){
+    return (
+      <Shell onGear={()=>setView("settings")} gearOn>
+        <div className="done">
+          <div className="mark">¡Listo!</div>
+          <h2>Alle {total} Vokabeln sitzen</h2>
+          <p>{missTotal===0
+            ? "Fehlerfrei durchgelaufen. Beeindruckend."
+            : `${missTotal} ${missTotal===1?"Anlauf":"Anläufe"} extra gebraucht.`}</p>
+
+          {toughest.length>0 && (
+            <div className="tough">
+              <h3>Die hartnäckigsten</h3>
+              <ul>
+                {toughest.map(({card,n})=>(
+                  <li key={card.ar}>
+                    <span className="es">{card.ar}</span>
+                    <span className="de">{card.de}</span>
+                    <span className="n">{n}×</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div className="again">
+            <button onClick={()=>setView("settings")}>Einstellungen</button>
+            <button className="primary" onClick={begin}>Nochmal</button>
+          </div>
+        </div>
+      </Shell>
+    );
+  }
+
+  if(!current) return <Shell gearOn onGear={()=>setView("settings")}><div className="panel">Keine Karten in dieser Runde.</div></Shell>;
+
+  return (
+    <Shell onGear={()=>setView("settings")} gearOn>
+      <div className="study">
+        <div className="ticks" aria-hidden="true">
+          {order.map(id=>(
+            <span key={id} className="tick"
+              data-s={mastered.has(id)?"done":(current.id===id?"now":"open")}/>
+          ))}
+        </div>
+
+        <div className="meta">
+          <span className="l"><b>{known}</b> von {total} sitzen</span>
+          <span className="r">
+            noch {queue.length} offen
+            {missTotal>0 && <span className="miss"> · {missTotal} Anläufe</span>}
+          </span>
+          <button className="reset" onClick={begin} aria-label="Runde neu starten">↺</button>
+        </div>
+
+        <div className="stage" onClick={()=>!busy&&setFlipped(f=>!f)}>
+          <div className={"card"+(flipped?" flip":"")}>
+            <div className="face front">
+              <span className="badge" style={{color:ART_COLORS[current.art]}}>
+                {current.art}{current.irr?" · unregelmäßig":""}
+              </span>
+              <p className="word">{front}</p>
+              <span className="hint">Tippen zum Umdrehen</span>
+            </div>
+            <div className="face back">
+              <span className="badge" style={{color:"rgba(217,164,65,.9)"}}>Lösung</span>
+              <p className="word">{back}</p>
+              {current.ex && (
+                <p className="ex">{current.ex.split("\n").map((l,i)=><span key={i} style={{display:"block"}}>{l}</span>)}</p>
+              )}
+              <span className="hint">Wusstest du's?</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="actions">
+          <button className="judge no" onClick={()=>judge(false)} disabled={busy}>✕ Noch nicht</button>
+          <button className="judge yes" onClick={()=>judge(true)} disabled={busy}>✓ Sitzt</button>
+          <button className="later" onClick={rotate} disabled={busy} aria-label="Später nochmal">›</button>
+        </div>
+
+        <div className="keys">
+          <kbd>Leer</kbd> umdrehen <kbd>1</kbd> noch nicht <kbd>2</kbd> sitzt <kbd>→</kbd> später
+        </div>
+      </div>
+    </Shell>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
