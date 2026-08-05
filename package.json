@@ -1,0 +1,13 @@
+{
+  "name": "spanisch",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Spanisch-Lernapp: Notion-Inhalte + Vokabeltrainer",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
